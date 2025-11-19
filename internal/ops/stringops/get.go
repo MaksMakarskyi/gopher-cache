@@ -3,20 +3,18 @@ package stringops
 import (
 	"fmt"
 
+	"github.com/MaksMakarskyi/gopher-cache/internal/db"
 	gobj "github.com/MaksMakarskyi/gopher-cache/internal/gopherobject"
 	"github.com/MaksMakarskyi/gopher-cache/internal/ops/opserrors"
-	"github.com/MaksMakarskyi/gopher-cache/internal/storage"
 )
 
-func Get(s *storage.Storage, key string) (string, error) {
+func Get(s *db.GopherDB, key string) (string, error) {
 	obj, ok := s.Get(key)
 
-	// Check if value exist
 	if !ok {
 		return "", &opserrors.NotExistError{Key: key}
 	}
 
-	// Check type
 	if obj.Type != gobj.GopherString {
 		return "", &opserrors.WrongTypeOperationError{
 			Operation: "GET",
@@ -24,7 +22,6 @@ func Get(s *storage.Storage, key string) (string, error) {
 		}
 	}
 
-	// Ensure type match
 	value, ok := obj.Ptr.(string)
 	if !ok {
 		return "", &opserrors.TypeValueMismatchError{

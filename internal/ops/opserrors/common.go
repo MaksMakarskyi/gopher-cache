@@ -16,14 +16,14 @@ type WrongTypeOperationError struct {
 }
 
 func (e *WrongTypeOperationError) Error() string {
-	return fmt.Sprintf("invalid operation for type %s: %s", e.Type, e.Operation)
+	return fmt.Sprintf("wrong operation for type %s: %s", e.Type, e.Operation)
 }
 
-type TypeValueMismatchError struct {
-	Expected string
-	Got      string
+type InvalidInputError struct {
+	Operation string
+	InputType string
 }
 
-func (e *TypeValueMismatchError) Error() string {
-	return fmt.Sprintf("internal error: expected type %s, but got %s", e.Expected, e.Got)
+func (e *InvalidInputError) Error() string {
+	return fmt.Sprintf("invalid input of type %s for operation %s", e.InputType, e.Operation)
 }

@@ -1,24 +1,32 @@
 package stringops
 
 import (
+	"fmt"
+
+	"github.com/MaksMakarskyi/gopher-cache/internal/db"
 	gobj "github.com/MaksMakarskyi/gopher-cache/internal/gopherobject"
 	"github.com/MaksMakarskyi/gopher-cache/internal/ops/opserrors"
-	"github.com/MaksMakarskyi/gopher-cache/internal/storage"
 )
 
-func Set(s *storage.Storage, key string, value string) error {
+func Set(s *db.GopherDB, key string, value any) error {
+	strValue, ok := value.(string)
+	if !ok {
+		return &opserrors.InvalidInputError{
+			Operation: "SET",
+			InputType: fmt.Sprintf("%T", value),
+		}
+	}
+
 	obj, ok := s.Get(key)
 
-	// Create new if does not exist
 	if !ok {
 		s.Set(key, &gobj.GopherObject{
 			Type: gobj.GopherString,
-			Ptr:  value,
+			Ptr:  strValue,
 		})
 		return nil
 	}
 
-	// Check type
 	if obj.Type != gobj.GopherString {
 		return &opserrors.WrongTypeOperationError{
 			Operation: "SET",
@@ -26,7 +34,6 @@ func Set(s *storage.Storage, key string, value string) error {
 		}
 	}
 
-	// Set value
-	obj.Ptr = value
+	obj.Ptr = strValue
 	return nil
 }

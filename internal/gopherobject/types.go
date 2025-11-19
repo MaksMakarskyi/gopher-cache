@@ -15,3 +15,7 @@ var TypeStringMap = map[GopherObjectType]string{
 	GopherList:    "GopherList",
 	GopherSet:     "GopherSet",
 }
+
+func DtypeToString(t GopherObjectType) string {
+	return TypeStringMap[t]
+}

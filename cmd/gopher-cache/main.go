@@ -1,16 +1,17 @@
 package main
 
 import (
-	"fmt"
+	"log"
 
-	// "github.com/MaksMakarskyi/gopher-cache/internal/gopherobject"
-	"github.com/MaksMakarskyi/gopher-cache/internal/ops/stringops"
-	"github.com/MaksMakarskyi/gopher-cache/internal/storage"
+	"github.com/MaksMakarskyi/gopher-cache/internal/db"
+	"github.com/MaksMakarskyi/gopher-cache/internal/server"
 )
 
 func main() {
-	s := storage.NewStorage()
+	log.SetFlags(log.LstdFlags | log.Lshortfile)
 
-	fmt.Println(stringops.Get(s, "foo"))
-
+	gopherdb := db.NewDB()
+	commandqueue := make(chan string)
+	app := server.NewGopherServer(gopherdb, "localhost:8080", commandqueue)
+	app.Run()
 }
