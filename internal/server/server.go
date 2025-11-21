@@ -12,14 +12,12 @@ import (
 
 type GopherServer struct {
 	Addr         string
-	DB           *db.GopherDB
 	Listener     net.Listener
 	CommandQueue chan<- string
 }
 
 func NewGopherServer(db *db.GopherDB, addr string, queue chan<- string) *GopherServer {
 	return &GopherServer{
-		DB:           db,
 		Addr:         addr,
 		CommandQueue: queue,
 	}

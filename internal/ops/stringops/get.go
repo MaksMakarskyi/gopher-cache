@@ -1,33 +1,49 @@
 package stringops
 
 import (
+	"errors"
 	"fmt"
 
+	dtypes "github.com/MaksMakarskyi/gopher-cache/internal/datatypes"
 	"github.com/MaksMakarskyi/gopher-cache/internal/db"
-	gobj "github.com/MaksMakarskyi/gopher-cache/internal/gopherobject"
 	"github.com/MaksMakarskyi/gopher-cache/internal/ops/opserrors"
 )
 
-func Get(s *db.GopherDB, key string) (string, error) {
-	obj, ok := s.Get(key)
+func Get(d *db.GopherDB, key string) (string, error) {
+	obj, ok := d.KVStore[key]
 
 	if !ok {
 		return "", &opserrors.NotExistError{Key: key}
 	}
 
-	if obj.Type != gobj.GopherString {
+	if obj.Type != dtypes.StringType {
 		return "", &opserrors.WrongTypeOperationError{
 			Operation: "GET",
-			Type:      gobj.TypeStringMap[obj.Type],
+			Type:      dtypes.TypeToStringMap[obj.Type],
 		}
 	}
 
-	value, ok := obj.Ptr.(string)
+	value, ok := obj.Data.(string)
 	if !ok {
 		return "", &opserrors.TypeValueMismatchError{
-			Expected: gobj.TypeStringMap[gobj.GopherString],
-			Got:      fmt.Sprintf("%T", obj.Ptr),
+			Expected: dtypes.TypeToStringMap[dtypes.StringType],
+			Got:      fmt.Sprintf("%T", obj.Data),
 		}
+	}
+
+	return value, nil
+}
+
+func GetHandler(d *db.GopherDB, args []string) (string, error) {
+	if len(args) != 1 {
+		return "", errors.New("ERR wrong number of arguments for 'GET' command")
+	}
+
+	key := args[0]
+
+	value, err := Get(d, key)
+	if err != nil {
+		return "", err
 	}
 
 	return value, nil
