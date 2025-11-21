@@ -1,23 +1,23 @@
-package stringops
+package stringcmds
 
 import (
 	"errors"
 	"fmt"
 
+	"github.com/MaksMakarskyi/gopher-cache/internal/cmds/cmderrors"
 	dtypes "github.com/MaksMakarskyi/gopher-cache/internal/datatypes"
 	"github.com/MaksMakarskyi/gopher-cache/internal/db"
-	"github.com/MaksMakarskyi/gopher-cache/internal/ops/opserrors"
 )
 
 func Get(d *db.GopherDB, key string) (string, error) {
 	obj, ok := d.KVStore[key]
 
 	if !ok {
-		return "", &opserrors.NotExistError{Key: key}
+		return "", &cmderrors.NotExistError{Key: key}
 	}
 
 	if obj.Type != dtypes.StringType {
-		return "", &opserrors.WrongTypeOperationError{
+		return "", &cmderrors.WrongTypeOperationError{
 			Operation: "GET",
 			Type:      dtypes.TypeToStringMap[obj.Type],
 		}
@@ -25,7 +25,7 @@ func Get(d *db.GopherDB, key string) (string, error) {
 
 	value, ok := obj.Data.(string)
 	if !ok {
-		return "", &opserrors.TypeValueMismatchError{
+		return "", &cmderrors.TypeValueMismatchError{
 			Expected: dtypes.TypeToStringMap[dtypes.StringType],
 			Got:      fmt.Sprintf("%T", obj.Data),
 		}

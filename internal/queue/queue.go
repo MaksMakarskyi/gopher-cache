@@ -1,21 +1,21 @@
 package queue
 
-import command "github.com/MaksMakarskyi/gopher-cache/internal/commands"
+import "github.com/MaksMakarskyi/gopher-cache/internal/cmds"
 
 type GopherQueue struct {
-	CommandQueueCh chan *command.GopherCommand
+	CommandQueueCh chan *cmds.GopherCommand
 }
 
 func NewGopherQueue(bufferSize int) *GopherQueue {
 	return &GopherQueue{
-		CommandQueueCh: make(chan *command.GopherCommand, bufferSize),
+		CommandQueueCh: make(chan *cmds.GopherCommand, bufferSize),
 	}
 }
 
-func (gq *GopherQueue) Add(c *command.GopherCommand) {
+func (gq *GopherQueue) Add(c *cmds.GopherCommand) {
 	gq.CommandQueueCh <- c
 }
 
-func (gq *GopherQueue) WaitForCommands() <-chan *command.GopherCommand {
+func (gq *GopherQueue) WaitForCommands() <-chan *cmds.GopherCommand {
 	return gq.CommandQueueCh
 }

@@ -1,4 +1,4 @@
-package opserrors
+package cmderrors
 
 import "fmt"
 
