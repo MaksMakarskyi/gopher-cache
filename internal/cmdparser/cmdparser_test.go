@@ -1,57 +1,124 @@
 package cmdparser
 
 import (
+	"reflect"
 	"testing"
 )
 
-// type TestCase struct {
-// 	Input        string
-// 	ExpectedName string
-// 	ExpectedArgs []string
-// 	ShouldFail   bool
-// }
+type TestCase struct {
+	Name         string
+	Input        string
+	ExpectedName string
+	ExpectedArgs []any
+	ShouldFail   bool
+}
 
-// var tests = []TestCase{
-// 	{
-// 		Input:        "*3\r\n$3\r\nSET\r\n$3\r\nfoo\r\n$3\r\nbar\r\n",
-// 		ExpectedName: "SET",
-// 		ExpectedArgs: []string{"foo", "bar"},
-// 		ShouldFail:   false,
-// 	},
-// 	{
-// 		Input:        "*3\r\n$3\r\nGET\r\n$3\r\nfoo\r\n",
-// 		ExpectedName: "GET",
-// 		ExpectedArgs: []string{"foo"},
-// 		ShouldFail:   false,
-// 	},
-// }
+var tests = []TestCase{
+	{
+		Name:         "valid_set_cmd",
+		Input:        "*3\r\n$3\r\nSET\r\n$3\r\nfoo\r\n$3\r\nbar\r\n",
+		ExpectedName: "SET",
+		ExpectedArgs: []any{"foo", "bar"},
+		ShouldFail:   false,
+	},
+	{
+		Name:         "valid_get_cmd",
+		Input:        "*2\r\n$3\r\nGET\r\n$3\r\nfoo\r\n",
+		ExpectedName: "GET",
+		ExpectedArgs: []any{"foo"},
+		ShouldFail:   false,
+	},
+	{
+		Name:         "invalid_get_cmd",
+		Input:        "*3\r\n$3\r\nGET\r\n$3\r\nfoo\r\n",
+		ExpectedName: "",
+		ExpectedArgs: nil,
+		ShouldFail:   true,
+	},
+	{
+		Name:         "invalid_cmd_type",
+		Input:        "*3\r\n*1\r\n$1\r\np\r\n$3\r\nGET\r\n$3\r\nfoo\r\n",
+		ExpectedName: "",
+		ExpectedArgs: nil,
+		ShouldFail:   true,
+	},
+	{
+		Name:         "invalid_arr_len",
+		Input:        "*fgs\r\n$3\r\nGET\r\n$3\r\nfoo\r\n",
+		ExpectedName: "",
+		ExpectedArgs: nil,
+		ShouldFail:   true,
+	},
+	{
+		Name:         "invalid_crlf",
+		Input:        "*1\\n$3\rnGET\r",
+		ExpectedName: "",
+		ExpectedArgs: nil,
+		ShouldFail:   true,
+	},
+	{
+		Name:         "invalid_bulk_string_item",
+		Input:        "*2\r\n$3\r\nGE\r\n$3\r\nfoo\r\n",
+		ExpectedName: "",
+		ExpectedArgs: nil,
+		ShouldFail:   true,
+	},
+	{
+		Name:         "invalid_dtype_byte",
+		Input:        "g2\r\n$3\r\nGET\r\n$3\r\nfoo\r\n",
+		ExpectedName: "",
+		ExpectedArgs: nil,
+		ShouldFail:   true,
+	},
+	{
+		Name:         "invalid_dtype_byte_2",
+		Input:        "*2\r\ng3\r\nGET\r\n$3\r\nfoo\r\n",
+		ExpectedName: "",
+		ExpectedArgs: nil,
+		ShouldFail:   true,
+	},
+	{
+		Name:         "huge_len",
+		Input:        "*200000000000\r\ng3\r\nGET\r\n$3\r\nfoo\r\n",
+		ExpectedName: "",
+		ExpectedArgs: nil,
+		ShouldFail:   true,
+	},
+	{
+		Name:         "empty_input",
+		Input:        "",
+		ExpectedName: "",
+		ExpectedArgs: nil,
+		ShouldFail:   true,
+	},
+}
 
-// func TestGopherCommandParser(t *testing.T) {
-// 	for i, test := range tests {
-// 		parser := NewGopherCommandParser(test.Input)
-// 		name, args, err := parser.Parse()
+func TestGopherCommandParser(t *testing.T) {
+	parser := NewGopherCommandParser()
 
-// 		if test.ShouldFail {
-// 			if err == nil {
-// 				t.Errorf("#%d: Expected error for input '%s', but got none", i, test.Input)
-// 			}
-// 			continue
-// 		}
+	for i, test := range tests {
+		t.Run(test.Name, func(t *testing.T) {
+			name, args, err := parser.Parse(test.Input)
 
-// 		if err != nil {
-// 			t.Errorf("#%d: Unexpected error for input '%s': %v", i, test.Input, err)
-// 			continue
-// 		}
+			if test.ShouldFail {
+				if err == nil {
+					t.Errorf("#%d: Expected error for input '%s', but got none", i, test.Input)
+				}
+			} else if err != nil {
+				t.Errorf("#%d: Unexpected error for input '%s': %v", i, test.Input, err)
+			}
 
-// 		if name != test.ExpectedName {
-// 			t.Errorf("#%d: Name mismatch. Got '%s', want '%s'", i, name, test.ExpectedName)
-// 		}
+			if name != test.ExpectedName {
+				t.Errorf("#%d: Name mismatch. Got '%s', want '%s'", i, name, test.ExpectedName)
+			}
 
-// 		if !reflect.DeepEqual(args, test.ExpectedArgs) {
-// 			t.Errorf("#%d: Args mismatch. Got %v, want %v", i, args, test.ExpectedArgs)
-// 		}
-// 	}
-// }
+			if !reflect.DeepEqual(args, test.ExpectedArgs) {
+				t.Errorf("#%d: Args mismatch. Got %v, want %v", i, args, test.ExpectedArgs)
+			}
+		})
+
+	}
+}
 
 type ParseBulkStringTestCase struct {
 	Name           string
@@ -162,7 +229,7 @@ var parsBulkStringTests = []ParseBulkStringTestCase{
 	},
 }
 
-func TestGopherCommandParser(t *testing.T) {
+func TestGopherBulkStringParser(t *testing.T) {
 	parser := NewGopherCommandParser()
 
 	for i, tc := range parsBulkStringTests {
