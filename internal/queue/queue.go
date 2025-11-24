@@ -1,6 +1,8 @@
 package queue
 
-import "github.com/MaksMakarskyi/gopher-cache/internal/cmds"
+import (
+	"github.com/MaksMakarskyi/gopher-cache/internal/cmds"
+)
 
 type GopherQueue struct {
 	CommandQueueCh chan *cmds.GopherCommand

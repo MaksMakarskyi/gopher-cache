@@ -8,7 +8,7 @@ type GopherDB struct {
 	KVStore map[string]*dtypes.GopherObject
 }
 
-func NewDB() *GopherDB {
+func NewGopherDB() *GopherDB {
 	return &GopherDB{
 		make(map[string]*dtypes.GopherObject),
 	}

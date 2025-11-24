@@ -23,7 +23,7 @@ func Get(d *db.GopherDB, key string) (string, error) {
 		}
 	}
 
-	value, ok := obj.Data.(string)
+	value, ok := obj.Data.(*dtypes.GopherString)
 	if !ok {
 		return "", &cmderrors.TypeValueMismatchError{
 			Expected: dtypes.TypeToStringMap[dtypes.StringType],
@@ -31,17 +31,19 @@ func Get(d *db.GopherDB, key string) (string, error) {
 		}
 	}
 
-	return value, nil
+	return value.Entry, nil
 }
 
-func GetHandler(d *db.GopherDB, args []string) (string, error) {
+func GetHandler(d *db.GopherDB, args []any) (string, error) {
+	strArgs, err := ExpectStrings(args)
+	if err != nil {
+		return "", err
+	}
 	if len(args) != 1 {
 		return "", errors.New("ERR wrong number of arguments for 'GET' command")
 	}
 
-	key := args[0]
-
-	value, err := Get(d, key)
+	value, err := Get(d, strArgs[0])
 	if err != nil {
 		return "", err
 	}

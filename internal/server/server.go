@@ -7,27 +7,30 @@ import (
 	"log"
 	"net"
 
-	"github.com/MaksMakarskyi/gopher-cache/internal/db"
+	"github.com/MaksMakarskyi/gopher-cache/internal/cmdparser"
+	"github.com/MaksMakarskyi/gopher-cache/internal/cmds"
+	"github.com/MaksMakarskyi/gopher-cache/internal/queue"
 )
 
 type GopherServer struct {
-	Addr         string
-	Listener     net.Listener
-	CommandQueue chan<- string
+	Addr          string
+	Listener      net.Listener
+	CommandQueue  *queue.GopherQueue
+	CommnadParser *cmdparser.GopherCommandParser
 }
 
-func NewGopherServer(db *db.GopherDB, addr string, queue chan<- string) *GopherServer {
+func NewGopherServer(addr string, q *queue.GopherQueue) *GopherServer {
 	return &GopherServer{
-		Addr:         addr,
-		CommandQueue: queue,
+		Addr:          addr,
+		CommandQueue:  q,
+		CommnadParser: cmdparser.NewGopherCommandParser(),
 	}
 }
 
 func (gs *GopherServer) Run() error {
 	ln, err := net.Listen("tcp", gs.Addr)
 	if err != nil {
-		fmt.Println(fmt.Errorf("failed to run TCP server"))
-		return fmt.Errorf("failed to run TCP server")
+		return fmt.Errorf("ERR failed to run TCP server")
 	}
 
 	log.Printf("started listening %s", gs.Addr)
@@ -51,7 +54,8 @@ func (gs *GopherServer) handleConnection(conn net.Conn) {
 
 	reader := bufio.NewReader(conn)
 	for {
-		bytes, err := reader.ReadBytes(byte('\n'))
+		bytes := make([]byte, 1024)
+		n, err := reader.Read(bytes)
 		if err != nil {
 			if err != io.EOF {
 				fmt.Println("failed to read data, err:", err)
@@ -59,10 +63,18 @@ func (gs *GopherServer) handleConnection(conn net.Conn) {
 			return
 		}
 
-		fmt.Printf("request: %s", bytes)
-		line := fmt.Sprintf("Echo: %s", bytes)
-		fmt.Printf("response: %s", line)
+		rawCmd := string(bytes[:n])
+		cmdName, cmdArgs, err := gs.CommnadParser.Parse(rawCmd)
+		if err != nil {
+			conn.Write([]byte(err.Error()))
+		}
 
-		gs.CommandQueue <- line
+		responseCh := make(chan string, 1)
+		cmd := cmds.NewGopherCommand(cmdName, cmdArgs, responseCh)
+
+		gs.CommandQueue.Add(&cmd)
+
+		response := <-responseCh
+		conn.Write([]byte(response))
 	}
 }

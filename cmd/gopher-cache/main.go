@@ -5,7 +5,9 @@ import (
 	"fmt"
 	"log"
 
+	"github.com/MaksMakarskyi/gopher-cache/internal/cmdexecutor"
 	"github.com/MaksMakarskyi/gopher-cache/internal/db"
+	"github.com/MaksMakarskyi/gopher-cache/internal/queue"
 	"github.com/MaksMakarskyi/gopher-cache/internal/server"
 )
 
@@ -17,8 +19,16 @@ func main() {
 	flag.Parse()
 	addr := fmt.Sprintf("%s:%s", *host, *port)
 
-	gopherdb := db.NewDB()
-	commandqueue := make(chan string)
-	app := server.NewGopherServer(gopherdb, addr, commandqueue)
-	app.Run()
+	gopherdb := db.NewGopherDB()
+	gopherQueue := queue.NewGopherQueue(100)
+	cmdExecutor := cmdexecutor.NewGopherCommandExecutor(gopherQueue, gopherdb)
+	app := server.NewGopherServer(addr, gopherQueue)
+
+	go func() {
+		if err := app.Run(); err != nil {
+			log.Fatalf("Server error: %v", err)
+		}
+	}()
+
+	cmdExecutor.Start()
 }
