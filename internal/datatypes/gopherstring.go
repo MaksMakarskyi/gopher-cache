@@ -1,9 +1,13 @@
 package datatypes
 
 type GopherString struct {
-	Entry string
+	Data string
 }
 
 func NewGopherString(s string) *GopherString {
-	return &GopherString{Entry: s}
+	return &GopherString{Data: s}
+}
+
+func (gs *GopherString) Get() string {
+	return gs.Data
 }

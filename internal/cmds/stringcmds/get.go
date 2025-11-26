@@ -31,7 +31,7 @@ func Get(d *db.GopherDB, key string) (string, error) {
 		}
 	}
 
-	return value.Entry, nil
+	return value.Get(), nil
 }
 
 func GetHandler(d *db.GopherDB, args []any) (string, error) {
