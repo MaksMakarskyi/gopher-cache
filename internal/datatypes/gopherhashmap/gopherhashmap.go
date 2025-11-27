@@ -1,4 +1,4 @@
-package datatypes
+package gopherhashmap
 
 import "fmt"
 
@@ -37,7 +37,7 @@ func (gh *GopherHashmap) Hget(key string) string {
 func (gh *GopherHashmap) Hmget(keys []string) []string {
 	values := make([]string, len(keys))
 	for i, key := range keys {
-		values[i] = gh.Data[key]
+		values[i] = gh.Hget(key)
 	}
 
 	return values

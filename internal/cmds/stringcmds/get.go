@@ -6,6 +6,7 @@ import (
 
 	"github.com/MaksMakarskyi/gopher-cache/internal/cmds/cmderrors"
 	dtypes "github.com/MaksMakarskyi/gopher-cache/internal/datatypes"
+	"github.com/MaksMakarskyi/gopher-cache/internal/datatypes/gopherstring"
 	"github.com/MaksMakarskyi/gopher-cache/internal/db"
 )
 
@@ -23,7 +24,7 @@ func Get(d *db.GopherDB, key string) (string, error) {
 		}
 	}
 
-	value, ok := obj.Data.(*dtypes.GopherString)
+	value, ok := obj.Data.(*gopherstring.GopherString)
 	if !ok {
 		return "", &cmderrors.TypeValueMismatchError{
 			Expected: dtypes.TypeToStringMap[dtypes.StringType],

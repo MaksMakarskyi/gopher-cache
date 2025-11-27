@@ -6,6 +6,7 @@ import (
 
 	"github.com/MaksMakarskyi/gopher-cache/internal/cmds/cmderrors"
 	dtypes "github.com/MaksMakarskyi/gopher-cache/internal/datatypes"
+	"github.com/MaksMakarskyi/gopher-cache/internal/datatypes/gopherstring"
 	"github.com/MaksMakarskyi/gopher-cache/internal/db"
 )
 
@@ -23,12 +24,12 @@ func Set(d *db.GopherDB, key string, value any) error {
 	if !ok {
 		d.KVStore[key] = &dtypes.GopherObject{
 			Type: dtypes.StringType,
-			Data: dtypes.NewGopherString(strValue),
+			Data: gopherstring.NewGopherString(strValue),
 		}
 		return nil
 	}
 
-	obj.Data = dtypes.NewGopherString(strValue)
+	obj.Data = gopherstring.NewGopherString(strValue)
 	return nil
 }
 

@@ -1,4 +1,4 @@
-package datatypes
+package gopherlist
 
 type ListNode struct {
 	Val  string

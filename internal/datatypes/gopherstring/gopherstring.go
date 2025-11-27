@@ -1,4 +1,4 @@
-package datatypes
+package gopherstring
 
 type GopherString struct {
 	Data string
