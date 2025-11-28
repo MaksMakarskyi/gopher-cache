@@ -1,29 +1,23 @@
 package cmderrors
 
-import "fmt"
+import (
+	"fmt"
 
-type NotExistError struct {
-	Key string
+	"github.com/MaksMakarskyi/gopher-cache/internal/encodingutils"
+)
+
+type WrongNumberOfArgsError struct {
+	Command string
 }
 
-func (e *NotExistError) Error() string {
-	return fmt.Sprintf("value does not exist for key: %s", e.Key)
+func (e *WrongNumberOfArgsError) Error() string {
+	errorMsg := fmt.Sprintf("ERR wrong number of arguments for '%s' command", e.Command)
+	return encodingutils.FormatSimpleErrors(errorMsg)
 }
 
-type WrongTypeOperationError struct {
-	Operation string
-	Type      string
-}
+type WrongTypeOperationError struct{}
 
 func (e *WrongTypeOperationError) Error() string {
-	return fmt.Sprintf("wrong operation for type %s: %s", e.Type, e.Operation)
-}
-
-type InvalidInputError struct {
-	Operation string
-	InputType string
-}
-
-func (e *InvalidInputError) Error() string {
-	return fmt.Sprintf("invalid input of type %s for operation %s", e.InputType, e.Operation)
+	errorMsg := "WRONGTYPE Operation against a key holding the wrong kind of value"
+	return encodingutils.FormatSimpleErrors(errorMsg)
 }

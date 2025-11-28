@@ -1,6 +1,8 @@
 package gopherhashmap
 
-import "fmt"
+import (
+	"github.com/MaksMakarskyi/gopher-cache/internal/cmds/cmderrors"
+)
 
 type GopherHashmap struct {
 	Data map[string]string
@@ -12,18 +14,22 @@ func NewGopherMap() *GopherHashmap {
 	}
 }
 
-func (gh *GopherHashmap) Hset(args []string) error {
+func (gh *GopherHashmap) Hset(args []string) (int, error) {
 	if len(args)%2 != 0 {
-		return fmt.Errorf("ERR Odd number of arguments")
+		return 0, &cmderrors.WrongNumberOfArgsError{Command: "HSET"}
 	}
 
 	p := 0
+	count := 0
 	for p < len(args) {
+		if _, ok := gh.Data[args[p]]; !ok {
+			count += 1
+		}
 		gh.Data[args[p]] = args[p+1]
 		p += 2
 	}
 
-	return nil
+	return count, nil
 }
 
 func (gh *GopherHashmap) Hget(key string) string {
