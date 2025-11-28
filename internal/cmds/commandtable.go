@@ -5,7 +5,7 @@ import (
 	"github.com/MaksMakarskyi/gopher-cache/internal/db"
 )
 
-type CommandHandler func(db *db.GopherDB, args []any) (string, error)
+type CommandHandler func(db *db.GopherDB, args []string) (string, error)
 
 var GopherCommandTable map[string]CommandHandler = map[string]CommandHandler{
 	"SET": stringcmds.HandleSet,

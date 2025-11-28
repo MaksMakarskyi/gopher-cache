@@ -1,4 +1,4 @@
-package datatypes
+package gopherset
 
 type GopherSet struct {
 	Data map[string]bool

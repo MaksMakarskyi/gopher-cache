@@ -9,7 +9,7 @@ type TestCase struct {
 	Name         string
 	Input        string
 	ExpectedName string
-	ExpectedArgs []any
+	ExpectedArgs []string
 	ShouldFail   bool
 }
 
@@ -18,14 +18,14 @@ var tests = []TestCase{
 		Name:         "valid_set_cmd",
 		Input:        "*3\r\n$3\r\nSET\r\n$3\r\nfoo\r\n$3\r\nbar\r\n",
 		ExpectedName: "SET",
-		ExpectedArgs: []any{"foo", "bar"},
+		ExpectedArgs: []string{"foo", "bar"},
 		ShouldFail:   false,
 	},
 	{
 		Name:         "valid_get_cmd",
 		Input:        "*2\r\n$3\r\nGET\r\n$3\r\nfoo\r\n",
 		ExpectedName: "GET",
-		ExpectedArgs: []any{"foo"},
+		ExpectedArgs: []string{"foo"},
 		ShouldFail:   false,
 	},
 	{
@@ -87,6 +87,13 @@ var tests = []TestCase{
 	{
 		Name:         "empty_input",
 		Input:        "",
+		ExpectedName: "",
+		ExpectedArgs: nil,
+		ShouldFail:   true,
+	},
+	{
+		Name:         "array_of_arrays_cmd",
+		Input:        "*2\r\n$3\r\nSET\r\n*3\r\n$3\r\nSET\r\n$3\r\nfoo\r\n$3\r\nbar\r\n",
 		ExpectedName: "",
 		ExpectedArgs: nil,
 		ShouldFail:   true,

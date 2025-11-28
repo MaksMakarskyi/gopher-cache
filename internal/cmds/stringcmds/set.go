@@ -33,16 +33,12 @@ func Set(d *db.GopherDB, key string, value any) error {
 	return nil
 }
 
-func HandleSet(d *db.GopherDB, args []any) (string, error) {
-	strArgs, err := ExpectStrings(args)
-	if err != nil {
-		return "", err
-	}
+func HandleSet(d *db.GopherDB, args []string) (string, error) {
 	if len(args) != 2 {
 		return "", errors.New("ERR wrong number of arguments for 'SET' command")
 	}
 
-	err = Set(d, strArgs[0], strArgs[1])
+	err := Set(d, args[0], args[1])
 	if err != nil {
 		return "", err
 	}

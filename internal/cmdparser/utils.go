@@ -1,4 +1,4 @@
-package stringcmds
+package cmdparser
 
 import "fmt"
 

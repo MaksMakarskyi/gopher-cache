@@ -2,11 +2,11 @@ package cmds
 
 type GopherCommand struct {
 	Name       string
-	Args       []any
+	Args       []string
 	ResponseCh chan<- string
 }
 
-func NewGopherCommand(n string, a []any, r chan<- string) GopherCommand {
+func NewGopherCommand(n string, a []string, r chan<- string) GopherCommand {
 	return GopherCommand{
 		Name:       n,
 		Args:       a,

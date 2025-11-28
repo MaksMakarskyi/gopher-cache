@@ -35,16 +35,12 @@ func Get(d *db.GopherDB, key string) (string, error) {
 	return value.Get(), nil
 }
 
-func GetHandler(d *db.GopherDB, args []any) (string, error) {
-	strArgs, err := ExpectStrings(args)
-	if err != nil {
-		return "", err
-	}
+func GetHandler(d *db.GopherDB, args []string) (string, error) {
 	if len(args) != 1 {
 		return "", errors.New("ERR wrong number of arguments for 'GET' command")
 	}
 
-	value, err := Get(d, strArgs[0])
+	value, err := Get(d, args[0])
 	if err != nil {
 		return "", err
 	}

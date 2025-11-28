@@ -12,7 +12,7 @@ func NewGopherCommandParser() *GopherCommandParser {
 	return &GopherCommandParser{}
 }
 
-func (gcp *GopherCommandParser) Parse(cmd string) (string, []any, error) {
+func (gcp *GopherCommandParser) Parse(cmd string) (string, []string, error) {
 	cursor := 0
 
 	if cursor >= len(cmd) {
@@ -29,7 +29,12 @@ func (gcp *GopherCommandParser) Parse(cmd string) (string, []any, error) {
 		return "", nil, fmt.Errorf("ERR Parse error invalid command type")
 	}
 
-	return commandType, args[1:], nil
+	strArgs, err := ExpectStrings(args[1:])
+	if err != nil {
+		return "", nil, err
+	}
+
+	return commandType, strArgs, nil
 }
 
 func (gcp *GopherCommandParser) _parse(cursor *int, s string) (any, error) {
