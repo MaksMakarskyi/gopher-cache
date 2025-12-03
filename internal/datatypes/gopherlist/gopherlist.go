@@ -20,7 +20,7 @@ func NewGopherList() *GopherList {
 	}
 }
 
-func (gl *GopherList) Lpush(args []string) {
+func (gl *GopherList) Lpush(args []string) int {
 	for _, item := range args {
 		newNode := ListNode{
 			item,
@@ -38,9 +38,11 @@ func (gl *GopherList) Lpush(args []string) {
 
 		gl.Len += 1
 	}
+
+	return gl.Len
 }
 
-func (gl *GopherList) Rpush(args []string) {
+func (gl *GopherList) Rpush(args []string) int {
 	for _, item := range args {
 		newNode := ListNode{
 			item,
@@ -58,40 +60,54 @@ func (gl *GopherList) Rpush(args []string) {
 
 		gl.Len += 1
 	}
+
+	return gl.Len
 }
 
-func (gl *GopherList) Lpop(count int) {
-	for range count {
+func (gl *GopherList) Lpop(count int) []string {
+	deletedItems := make([]string, min(count, gl.Len))
+
+	for i := range count {
 		if gl.Head == nil && gl.Tail == nil {
 			break
 		} else if gl.Head == gl.Tail {
+			deletedItems[i] = gl.Head.Val
 			gl.Head = nil
 			gl.Tail = nil
 			gl.Len -= 1
 			break
 		}
 
+		deletedItems[i] = gl.Head.Val
 		gl.Head = gl.Head.Next
 		gl.Head.Prev = nil
 		gl.Len -= 1
 	}
+
+	return deletedItems
 }
 
-func (gl *GopherList) Rpop(count int) {
-	for range count {
+func (gl *GopherList) Rpop(count int) []string {
+	deletedItems := make([]string, min(count, gl.Len))
+
+	for i := range count {
 		if gl.Head == nil && gl.Tail == nil {
 			break
 		} else if gl.Head == gl.Tail {
+			deletedItems[i] = gl.Tail.Val
 			gl.Head = nil
 			gl.Tail = nil
 			gl.Len -= 1
 			break
 		}
 
+		deletedItems[i] = gl.Tail.Val
 		gl.Tail = gl.Tail.Prev
 		gl.Tail.Next = nil
 		gl.Len -= 1
 	}
+
+	return deletedItems
 }
 
 func (gl *GopherList) Llen() int {

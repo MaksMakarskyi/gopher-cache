@@ -1,14 +1,12 @@
 package setcmds
 
-// import (
-// 	"errors"
-// 	"fmt"
-
-// 	"github.com/MaksMakarskyi/gopher-cache/internal/cmds/cmderrors"
-// 	"github.com/MaksMakarskyi/gopher-cache/internal/datatypes"
-// 	"github.com/MaksMakarskyi/gopher-cache/internal/datatypes/gopherset"
-// 	"github.com/MaksMakarskyi/gopher-cache/internal/db"
-// )
+import (
+	"github.com/MaksMakarskyi/gopher-cache/internal/cmds/cmderrors"
+	"github.com/MaksMakarskyi/gopher-cache/internal/datatypes"
+	"github.com/MaksMakarskyi/gopher-cache/internal/datatypes/gopherset"
+	"github.com/MaksMakarskyi/gopher-cache/internal/db"
+	"github.com/MaksMakarskyi/gopher-cache/internal/encodingutils"
+)
 
 // key missing → create set, add members, return :<countAdded>\r\n
 // exists as set → add new members, return countAdded
@@ -16,47 +14,34 @@ package setcmds
 // wrong type (not set) → return: -WRONGTYPE Operation against a key holding the wrong kind of value\r\n
 // wrong number of arguments → return: -ERR wrong number of arguments for 'SADD' command\r\n
 
-// func Sadd(d *db.GopherDB, key string, members []string) error {
-// 	obj, ok := d.KVStore[key]
+func Sadd(d *db.GopherDB, key string, members []string) (string, error) {
+	obj, ok := d.KVStore[key]
 
-// 	if !ok {
-// 		newSet := gopherset.NewGopherSet()
-// 		newSet.Sadd(members)
-// 		d.KVStore[key] = &datatypes.GopherObject{
-// 			Pointer: newSet,
-// 		}
+	var count int
 
-// 		return nil
-// 	}
+	if !ok {
+		newSet := gopherset.NewGopherSet()
+		count = newSet.Sadd(members)
+		d.KVStore[key] = &datatypes.GopherObject{
+			Pointer: newSet,
+		}
 
-// 	if obj.Type != datatypes.SetType {
-// 		return &cmderrors.WrongTypeOperationError{
-// 			Operation: "GET",
-// 			Type:      datatypes.TypeToStringMap[obj.Type],
-// 		}
-// 	}
+		return encodingutils.FormatInteger(count), nil
+	}
 
-// 	value, ok := obj.Data.(*gopherset.GopherSet)
-// 	if !ok {
-// 		return &cmderrors.TypeValueMismatchError{
-// 			Expected: datatypes.TypeToStringMap[datatypes.StringType],
-// 			Got:      fmt.Sprintf("%T", obj.Data),
-// 		}
-// 	}
+	value, ok := obj.Pointer.(*gopherset.GopherSet)
+	if !ok {
+		return "", &cmderrors.WrongTypeOperationError{}
+	}
 
-// 	value.Sadd(members)
-// 	return nil
-// }
+	count = value.Sadd(members)
+	return encodingutils.FormatInteger(count), nil
+}
 
-// func SaddHandler(d *db.GopherDB, args []string) (string, error) {
-// 	if len(args) < 2 {
-// 		return "", errors.New("ERR too few arguments for 'SADD' command")
-// 	}
+func SaddHandler(d *db.GopherDB, args []string) (string, error) {
+	if len(args) < 2 {
+		return "", &cmderrors.WrongNumberOfArgsError{Command: "SADD"}
+	}
 
-// 	err := Sadd(d, args[0], args[1:])
-// 	if err != nil {
-// 		return "", err
-// 	}
-
-// 	return "OK", nil
-// }
+	return Sadd(d, args[0], args[1:])
+}

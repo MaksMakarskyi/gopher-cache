@@ -9,7 +9,7 @@ func FormatSimpleString(s string) string {
 	return fmt.Sprintf("+%s\r\n", s)
 }
 
-func FormatSimpleErrors(s string) string {
+func FormatSimpleError(s string) string {
 	return fmt.Sprintf("-%s\r\n", s)
 }
 
