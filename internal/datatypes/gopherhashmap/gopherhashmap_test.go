@@ -34,11 +34,12 @@ func CompareSlices(expected, got []string) bool {
 
 // HSET
 type TestCaseHset struct {
-	Name       string
-	Args       []string
-	InitialMap map[string]string
-	FinalMap   map[string]string
-	ShouldFail bool
+	Name          string
+	Args          []string
+	InitialMap    map[string]string
+	FinalMap      map[string]string
+	ExpectedCount int
+	ShouldFail    bool
 }
 
 var HsetTests = []TestCaseHset{
@@ -47,6 +48,7 @@ var HsetTests = []TestCaseHset{
 		[]string{"foo", "bar"},
 		make(map[string]string, 0),
 		map[string]string{"foo": "bar"},
+		1,
 		false,
 	},
 	{
@@ -54,13 +56,15 @@ var HsetTests = []TestCaseHset{
 		[]string{"foo", "bar", "fizz", "bazz"},
 		make(map[string]string, 0),
 		map[string]string{"foo": "bar", "fizz": "bazz"},
+		2,
 		false,
 	},
 	{
 		"random_map_1",
 		[]string{"fizz", "bazz"},
-		map[string]string{"foo": "bar"},
+		map[string]string{"foo": "bar", "fizz": "overwritten value"},
 		map[string]string{"foo": "bar", "fizz": "bazz"},
+		0,
 		false,
 	},
 	{
@@ -68,6 +72,7 @@ var HsetTests = []TestCaseHset{
 		[]string{"python", "true", "javascript", "false"},
 		map[string]string{"foo": "bar", "fizz": "bazz"},
 		map[string]string{"foo": "bar", "fizz": "bazz", "python": "true", "javascript": "false"},
+		2,
 		false,
 	},
 	{
@@ -75,6 +80,7 @@ var HsetTests = []TestCaseHset{
 		[]string{"python", "true", "javascript"},
 		map[string]string{"foo": "bar", "fizz": "bazz"},
 		map[string]string{"foo": "bar", "fizz": "bazz"},
+		0,
 		true,
 	},
 	{
@@ -82,6 +88,7 @@ var HsetTests = []TestCaseHset{
 		[]string{"foo"},
 		map[string]string{"foo": "bar", "fizz": "bazz"},
 		map[string]string{"foo": "bar", "fizz": "bazz"},
+		0,
 		true,
 	},
 	{
@@ -89,6 +96,7 @@ var HsetTests = []TestCaseHset{
 		[]string{},
 		map[string]string{"foo": "bar", "fizz": "bazz"},
 		map[string]string{"foo": "bar", "fizz": "bazz"},
+		0,
 		false,
 	},
 }
@@ -98,7 +106,7 @@ func TestHset(t *testing.T) {
 		t.Run(test.Name, func(t *testing.T) {
 			gmap := NewGopherMap()
 			gmap.Data = test.InitialMap
-			err := gmap.Hset(test.Args)
+			count, err := gmap.Hset(test.Args)
 
 			if test.ShouldFail && err == nil {
 				t.Errorf("#%d: Expected error", i)
@@ -106,7 +114,9 @@ func TestHset(t *testing.T) {
 			} else if !test.ShouldFail && err != nil {
 				t.Errorf("#%d: Unexpected error: %s", i, err.Error())
 			} else if !CompareMaps(test.FinalMap, gmap.Data) {
-				t.Errorf("#%d: Expected: %#v, Got: %#v", i, test.FinalMap, gmap.Data)
+				t.Errorf("#%d: Hashmap Expected: %#v, Got: %#v", i, test.FinalMap, gmap.Data)
+			} else if count != test.ExpectedCount {
+				t.Errorf("#%d: Count Expected: %d, Got: %d", i, test.ExpectedCount, count)
 			}
 		})
 	}

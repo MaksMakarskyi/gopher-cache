@@ -20,12 +20,16 @@ func Hget(d *db.GopherDB, key string, field string) (string, error) {
 		return encodingutils.GetNullBulkString(), nil
 	}
 
-	ghashmap, ok := obj.Pointer.(gopherhashmap.GopherHashmap)
+	ghashmap, ok := obj.Pointer.(*gopherhashmap.GopherHashmap)
 	if !ok {
 		return "", &cmderrors.WrongTypeOperationError{}
 	}
 
 	str := ghashmap.Hget(field)
+	if len(str) == 0 {
+		return encodingutils.GetNullBulkString(), nil
+	}
+
 	return encodingutils.FormatBulkString(str), nil
 }
 

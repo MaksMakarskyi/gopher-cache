@@ -28,9 +28,9 @@ func FormatArray(strs []string) string {
 	formattedStrings[0] = arrayPrefix
 	for i, s := range strs {
 		if s == "" {
-			formattedStrings[i] = GetNullBulkString()
+			formattedStrings[i+1] = GetNullBulkString()
 		} else {
-			formattedStrings[i] = FormatBulkString(s)
+			formattedStrings[i+1] = FormatBulkString(s)
 		}
 	}
 

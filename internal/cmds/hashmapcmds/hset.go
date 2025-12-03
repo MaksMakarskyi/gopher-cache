@@ -27,7 +27,7 @@ func Hset(d *db.GopherDB, key string, args []string) (string, error) {
 		return encodingutils.FormatInteger(count), err
 	}
 
-	ghashmap, ok := obj.Pointer.(gopherhashmap.GopherHashmap)
+	ghashmap, ok := obj.Pointer.(*gopherhashmap.GopherHashmap)
 	if !ok {
 		return "", &cmderrors.WrongTypeOperationError{}
 	}
@@ -37,7 +37,7 @@ func Hset(d *db.GopherDB, key string, args []string) (string, error) {
 }
 
 func HandleHset(d *db.GopherDB, args []string) (string, error) {
-	if len(args) != 2 && len(args)%2 != 0 {
+	if len(args) < 3 || (len(args)-1)%2 != 0 {
 		return "", &cmderrors.WrongNumberOfArgsError{Command: "HSET"}
 	}
 

@@ -19,6 +19,8 @@ func Set(d *db.GopherDB, key string, value string) string {
 		d.KVStore[key] = &datatypes.GopherObject{
 			Pointer: gopherstring.NewGopherString(value),
 		}
+
+		return encodingutils.FormatSimpleString("OK")
 	}
 
 	obj.Pointer = gopherstring.NewGopherString(value)

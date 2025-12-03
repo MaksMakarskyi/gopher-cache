@@ -24,7 +24,7 @@ func Hmget(d *db.GopherDB, key string, fields []string) (string, error) {
 		return encodingutils.FormatArray(values), nil
 	}
 
-	gmap, ok := obj.Pointer.(gopherhashmap.GopherHashmap)
+	gmap, ok := obj.Pointer.(*gopherhashmap.GopherHashmap)
 	if !ok {
 		return "", &cmderrors.WrongTypeOperationError{}
 	}
@@ -35,7 +35,7 @@ func Hmget(d *db.GopherDB, key string, fields []string) (string, error) {
 
 func HandleHmget(d *db.GopherDB, args []string) (string, error) {
 	if len(args) <= 1 {
-		return "", &cmderrors.WrongNumberOfArgsError{}
+		return "", &cmderrors.WrongNumberOfArgsError{Command: "HMGET"}
 	}
 
 	return Hmget(d, args[0], args[1:])

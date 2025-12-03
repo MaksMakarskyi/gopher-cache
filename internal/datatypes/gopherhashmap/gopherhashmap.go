@@ -25,6 +25,7 @@ func (gh *GopherHashmap) Hset(args []string) (int, error) {
 		if _, ok := gh.Data[args[p]]; !ok {
 			count += 1
 		}
+
 		gh.Data[args[p]] = args[p+1]
 		p += 2
 	}

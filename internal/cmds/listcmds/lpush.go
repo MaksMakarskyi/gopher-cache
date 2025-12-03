@@ -26,7 +26,7 @@ func Lpush(d *db.GopherDB, key string, members []string) (string, error) {
 		return encodingutils.FormatInteger(newLen), nil
 	}
 
-	glist, ok := obj.Pointer.(gopherlist.GopherList)
+	glist, ok := obj.Pointer.(*gopherlist.GopherList)
 	if !ok {
 		return "", &cmderrors.WrongTypeOperationError{}
 	}

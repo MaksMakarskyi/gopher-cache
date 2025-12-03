@@ -21,7 +21,7 @@ func Rpop(d *db.GopherDB, key string, count int) (string, error) {
 		return encodingutils.GetNullBulkString(), nil
 	}
 
-	glist, ok := obj.Pointer.(gopherlist.GopherList)
+	glist, ok := obj.Pointer.(*gopherlist.GopherList)
 	if !ok {
 		return "", &cmderrors.WrongTypeOperationError{}
 	}

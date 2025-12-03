@@ -19,7 +19,7 @@ func Llen(d *db.GopherDB, key string) (string, error) {
 		return encodingutils.FormatInteger(0), nil
 	}
 
-	glist, ok := obj.Pointer.(gopherlist.GopherList)
+	glist, ok := obj.Pointer.(*gopherlist.GopherList)
 	if !ok {
 		return "", &cmderrors.WrongTypeOperationError{}
 	}
