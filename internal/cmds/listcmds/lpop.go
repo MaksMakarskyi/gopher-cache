@@ -35,12 +35,19 @@ func Lpop(d *db.GopherDB, key string, count int) (string, error) {
 }
 
 func LpopHandler(d *db.GopherDB, args []string) (string, error) {
-	if len(args) != 2 || len(args) != 1 {
+	if len(args) != 2 && len(args) != 1 {
 		return "", &cmderrors.WrongNumberOfArgsError{Command: "LPOP"}
 	}
 
 	if len(args) == 1 {
-		return Lpop(d, args[0], 1)
+		// convert to bulk string
+		arr, err := Lpop(d, args[0], 1)
+
+		if err != nil || arr == encodingutils.GetNullBulkString() {
+			return arr, err
+		}
+
+		return arr[4:], err
 	}
 
 	count, err := strconv.Atoi(args[1])
