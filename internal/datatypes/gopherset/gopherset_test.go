@@ -18,10 +18,11 @@ func CompareSets(expected, got map[string]bool) bool {
 
 // SADD
 type TestCaseSadd struct {
-	Name       string
-	InitialSet map[string]bool
-	Args       []string
-	FinalSet   map[string]bool
+	Name          string
+	InitialSet    map[string]bool
+	Args          []string
+	FinalSet      map[string]bool
+	ExpectedCount int
 }
 
 var SaddTests = []TestCaseSadd{
@@ -30,42 +31,49 @@ var SaddTests = []TestCaseSadd{
 		make(map[string]bool, 0),
 		[]string{"foo"},
 		map[string]bool{"foo": true},
+		1,
 	},
 	{
 		"empty_set_2",
 		make(map[string]bool, 0),
 		[]string{"foo", "bar"},
 		map[string]bool{"foo": true, "bar": true},
+		2,
 	},
 	{
 		"random_set_1",
 		map[string]bool{"foo": true, "bar": true},
 		[]string{"foo", "bar"},
 		map[string]bool{"foo": true, "bar": true},
+		0,
 	},
 	{
 		"random_set_2",
 		map[string]bool{"foo": true, "fizz": true},
 		[]string{"foo", "bar"},
 		map[string]bool{"foo": true, "fizz": true, "bar": true},
+		1,
 	},
 	{
 		"random_set_3",
 		map[string]bool{"bazz": true, "fizz": true},
 		[]string{"foo", "bar"},
 		map[string]bool{"bazz": true, "fizz": true, "foo": true, "bar": true},
+		2,
 	},
 	{
 		"empty_input_1",
 		map[string]bool{"bazz": true, "fizz": true},
 		[]string{},
 		map[string]bool{"bazz": true, "fizz": true},
+		0,
 	},
 	{
 		"empty_input_2",
 		make(map[string]bool, 0),
 		[]string{},
 		make(map[string]bool, 0),
+		0,
 	},
 }
 
@@ -74,10 +82,14 @@ func TestSadd(t *testing.T) {
 		t.Run(test.Name, func(t *testing.T) {
 			set := NewGopherSet()
 			set.Data = test.InitialSet
-			set.Sadd(test.Args)
+			count := set.Sadd(test.Args)
 
 			if !CompareSets(test.FinalSet, set.Data) {
-				t.Errorf("#%d: Expected: %#v, Got: %#v", i, test.FinalSet, set.Data)
+				t.Errorf("#%d: Set Expected: %#v, Got: %#v", i, test.FinalSet, set.Data)
+			}
+
+			if count != test.ExpectedCount {
+				t.Errorf("#%d: Count Expected: %d, Got: %d", i, test.ExpectedCount, count)
 			}
 		})
 	}
@@ -85,10 +97,11 @@ func TestSadd(t *testing.T) {
 
 // SREM
 type TestCaseSrem struct {
-	Name       string
-	InitialSet map[string]bool
-	Args       []string
-	FinalSet   map[string]bool
+	Name          string
+	InitialSet    map[string]bool
+	Args          []string
+	FinalSet      map[string]bool
+	ExpectedCount int
 }
 
 var SremTests = []TestCaseSrem{
@@ -97,36 +110,42 @@ var SremTests = []TestCaseSrem{
 		make(map[string]bool, 0),
 		[]string{"foo"},
 		make(map[string]bool, 0),
+		0,
 	},
 	{
 		"empty_set_2",
 		make(map[string]bool, 0),
 		[]string{"foo", "bar"},
 		make(map[string]bool, 0),
+		0,
 	},
 	{
-		"same_args",
+		"duplicated_key",
 		map[string]bool{"foo": true, "bar": true},
 		[]string{"foo", "foo"},
 		map[string]bool{"bar": true},
+		1,
 	},
 	{
-		"missing_args",
+		"missing_keys",
 		map[string]bool{"foo": true, "bar": true},
 		[]string{"fizz", "bazz"},
 		map[string]bool{"foo": true, "bar": true},
+		0,
 	},
 	{
 		"more_args_than_items",
 		map[string]bool{"foo": true, "bar": true},
 		[]string{"fizz", "bazz", "foo", "bar"},
 		make(map[string]bool, 0),
+		2,
 	},
 	{
 		"empty_input",
 		map[string]bool{"foo": true, "bar": true},
 		make([]string, 0),
 		map[string]bool{"foo": true, "bar": true},
+		0,
 	},
 }
 
@@ -135,10 +154,14 @@ func TestSrem(t *testing.T) {
 		t.Run(test.Name, func(t *testing.T) {
 			set := NewGopherSet()
 			set.Data = test.InitialSet
-			set.Srem(test.Args)
+			count := set.Srem(test.Args)
 
 			if !CompareSets(test.FinalSet, set.Data) {
-				t.Errorf("#%d: Expected: %#v, Got: %#v", i, test.FinalSet, set.Data)
+				t.Errorf("#%d: Set Expected: %#v, Got: %#v", i, test.FinalSet, set.Data)
+			}
+
+			if count != test.ExpectedCount {
+				t.Errorf("#%d: Count Expected: %d, Got: %d", i, test.ExpectedCount, count)
 			}
 		})
 	}
@@ -149,7 +172,7 @@ type TestCaseSismember struct {
 	Name       string
 	InitialSet map[string]bool
 	Key        string
-	Expected   bool
+	Expected   int
 }
 
 var SismemberTests = []TestCaseSismember{
@@ -157,31 +180,31 @@ var SismemberTests = []TestCaseSismember{
 		"empty_set",
 		make(map[string]bool, 0),
 		"foo",
-		false,
+		0,
 	},
 	{
 		"missing_key",
 		map[string]bool{"foo": true, "bar": true},
 		"fizz",
-		false,
+		0,
 	},
 	{
 		"wrong_case_key",
 		map[string]bool{"foo": true, "bar": true},
 		"fOo",
-		false,
+		0,
 	},
 	{
 		"existing_key_1",
 		map[string]bool{"foo": true, "bar": true},
 		"bar",
-		true,
+		1,
 	},
 	{
 		"existing_key_2",
 		map[string]bool{"foo": true, "bar": true},
 		"foo",
-		true,
+		1,
 	},
 }
 
@@ -193,7 +216,7 @@ func TestSismember(t *testing.T) {
 			got := set.Sismember(test.Key)
 
 			if got != test.Expected {
-				t.Errorf("#%d: Expected: %t, Got: %t", i, test.Expected, got)
+				t.Errorf("#%d: Expected: %d, Got: %d", i, test.Expected, got)
 			}
 		})
 	}
