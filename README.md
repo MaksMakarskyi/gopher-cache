@@ -2,6 +2,12 @@
 ![OS](https://img.shields.io/badge/OS-Windows,Linux,MacOS-orange)
 ![License](https://img.shields.io/badge/license-MIT-green)
 
+<p align="center">
+  <img src="./assests/gopher_logo.png"/>
+  <br>
+  <sub><em>By <a href="https://icon-icons.com/icon/golang-gopher-src-logo/168155">VectorLogoZone</a></em></sub>
+</p>
+
 # Table of Content
 
 - [About](#about)
@@ -175,6 +181,39 @@ func main() {
 ```
 
 #### Using Python
+
+This section demonstrates how to interact with Gopher Cache using a minimal Python TCP client. The example mirrors the Go snippet above, but is implemented in Python. First, start the server (if it is not already running):
+
+```bash
+./gopher-cache --mode server --host localhost --port 6379
+```
+
+or simply
+
+```bash
+./gopher-cache
+```
+
+Then, run the code snippet from `.py` file:
+
+```python
+import socket
+
+HOST = <HOST> # specify the host, example: "localhost"
+PORT = <PORT> # specify the port, example: 6379
+
+with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as s:
+    # Connect to the server
+    s.connect((HOST, PORT))
+
+    # Send RESP-encoded command, example: "*2\r\n$3\r\nGET\r\n$3\r\nfoo\r\n"
+    s.sendall(b"<RESP_ENCODED_COMMAND>")
+
+    # Read response
+    data = s.recv(1024)
+
+print(data.decode())
+```
 
 #### Using CLI
 
