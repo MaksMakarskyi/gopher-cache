@@ -1,9 +1,12 @@
 package cmdparser
 
 import (
+	"errors"
 	"fmt"
 	"strconv"
 	"strings"
+
+	"github.com/MaksMakarskyi/gopher-cache/internal/encodingutils"
 )
 
 type GopherCommandParser struct{}
@@ -16,7 +19,7 @@ func (gcp *GopherCommandParser) Parse(cmd string) (string, []string, error) {
 	cursor := 0
 
 	if cursor >= len(cmd) {
-		return "", nil, fmt.Errorf("ERR incomplete message")
+		return "", nil, errors.New(encodingutils.FormatSimpleError("ERR incomplete message"))
 	}
 
 	args, err := gcp.ParseArray(&cursor, cmd)
@@ -26,7 +29,7 @@ func (gcp *GopherCommandParser) Parse(cmd string) (string, []string, error) {
 
 	commandType, ok := args[0].(string)
 	if !ok {
-		return "", nil, fmt.Errorf("ERR Parse error invalid command type")
+		return "", nil, errors.New(encodingutils.FormatSimpleError("ERR Parse error invalid command type"))
 	}
 
 	strArgs, err := ExpectStrings(args[1:])
@@ -39,7 +42,7 @@ func (gcp *GopherCommandParser) Parse(cmd string) (string, []string, error) {
 
 func (gcp *GopherCommandParser) _parse(cursor *int, s string) (any, error) {
 	if *cursor >= len(s) {
-		return nil, fmt.Errorf("ERR incomplete message")
+		return nil, errors.New(encodingutils.FormatSimpleError("ERR incomplete message"))
 	}
 
 	switch s[*cursor] {
@@ -48,32 +51,32 @@ func (gcp *GopherCommandParser) _parse(cursor *int, s string) (any, error) {
 	case byte('*'):
 		return gcp.ParseArray(cursor, s)
 	default:
-		return "", fmt.Errorf("ERR Parse error at %d, expected dtype byte", cursor)
+		return "", errors.New(encodingutils.FormatSimpleError(fmt.Sprintf("ERR Parse error at %d, expected dtype byte", cursor)))
 	}
 }
 
 func (gcp *GopherCommandParser) ParseArray(cursor *int, s string) ([]any, error) {
 	if s[*cursor] != byte('*') {
-		return nil, fmt.Errorf("ERR Parse error expected '*', but got: %c", s[*cursor])
+		return nil, errors.New(encodingutils.FormatSimpleError(fmt.Sprintf("ERR Parse error expected '*', but got: %c", s[*cursor])))
 	}
 	*cursor += 1
 
 	// Read length
 	crlfStart := strings.Index(s[*cursor:], "\r\n")
 	if crlfStart == -1 {
-		return nil, fmt.Errorf("ERR Parse error incomplete command (missing length CRLF)")
+		return nil, errors.New(encodingutils.FormatSimpleError("ERR Parse error incomplete command (missing length CRLF)"))
 	}
 
 	lengthStr := s[*cursor : *cursor+crlfStart]
 	length, err := strconv.Atoi(lengthStr)
 	if err != nil {
-		return nil, fmt.Errorf("ERR Parse error invalid length: %s", lengthStr)
+		return nil, errors.New(encodingutils.FormatSimpleError(fmt.Sprintf("ERR Parse error invalid length: %s", lengthStr)))
 	}
 	*cursor += crlfStart + 2
 
 	// Check length for safety
 	if length > 1024*1024 {
-		return nil, fmt.Errorf("ERR array too large")
+		return nil, errors.New(encodingutils.FormatSimpleError("ERR array too large"))
 	}
 
 	// Read array items
@@ -99,20 +102,20 @@ func (gcp *GopherCommandParser) ParseBulkString(cursor *int, s string) (string, 
 
 	// Check datatype
 	if s[*cursor] != byte('$') {
-		return "", fmt.Errorf("ERR Parse error expected '$', but got: %c", s[*cursor])
+		return "", errors.New(encodingutils.FormatSimpleError(fmt.Sprintf("ERR Parse error expected '$', but got: %c", s[*cursor])))
 	}
 	*cursor += 1
 
 	// Read length
 	crlfStart := strings.Index(s[*cursor:], "\r\n")
 	if crlfStart == -1 {
-		return "", fmt.Errorf("ERR Parse error incomplete command (missing length CRLF)")
+		return "", errors.New(encodingutils.FormatSimpleError("ERR Parse error incomplete command (missing length CRLF)"))
 	}
 
 	lengthStr := s[*cursor : *cursor+crlfStart]
 	length, err := strconv.Atoi(lengthStr)
 	if err != nil {
-		return "", fmt.Errorf("ERR Parse error invalid length: %s", lengthStr)
+		return "", errors.New(encodingutils.FormatSimpleError(fmt.Sprintf("ERR Parse error invalid length: %s", lengthStr)))
 	}
 	*cursor += crlfStart + 2
 
@@ -122,12 +125,12 @@ func (gcp *GopherCommandParser) ParseBulkString(cursor *int, s string) (string, 
 
 	// Read string
 	if *cursor+length+2 > len(s) {
-		return "", fmt.Errorf("ERR Parse error buffer too short, expected %d bytes", length)
+		return "", errors.New(encodingutils.FormatSimpleError(fmt.Sprintf("ERR Parse error buffer too short, expected %d bytes", length)))
 	}
 
 	strValue := s[*cursor : *cursor+length]
 	if s[*cursor+length] != '\r' || s[*cursor+length+1] != '\n' {
-		return "", fmt.Errorf("ERR Parse error expected CRLF at end of payload")
+		return "", errors.New(encodingutils.FormatSimpleError("ERR Parse error expected CRLF at end of payload"))
 	}
 
 	*cursor += length + 2

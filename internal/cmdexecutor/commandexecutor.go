@@ -1,7 +1,6 @@
 package cmdexecutor
 
 import (
-	"fmt"
 	"log"
 
 	"github.com/MaksMakarskyi/gopher-cache/internal/cmds"
@@ -41,7 +40,7 @@ func (gce *GopherCommandExecutor) Start() {
 func (gce *GopherCommandExecutor) Execute(cmd *cmds.GopherCommand) (string, error) {
 	cmdHandler, exist := gce.CommandMap[cmd.Name]
 	if !exist {
-		return "", fmt.Errorf("ERR command does not exist: %s", cmd.Name)
+		return "", &CommandDoesNotExistError{Command: cmd.Name}
 	}
 
 	return cmdHandler(gce.Storage, cmd.Args)
