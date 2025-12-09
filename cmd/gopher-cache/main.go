@@ -10,10 +10,10 @@ import (
 func main() {
 	log.SetFlags(log.LstdFlags | log.Lshortfile)
 
-	mode := flag.String("mode", "cli", "Mode: 'cli' | 'server'. If cli is chosen, user should input commands into the terminal. If server wis chosen, user should send commands over TCP connection")
-	host := flag.String("host", "localhost", "host for the Gopher server")
-	port := flag.String("port", "6379", "port for the Gopher server")
-	queueSize := flag.Int("queueSize", 100, "size of the command queue")
+	mode := flag.String("mode", "server", "Run mode: 'server' listens for TCP connections, 'cli' reads commands from stdin")
+	host := flag.String("host", "localhost", "Address to bind the TCP server to")
+	port := flag.String("port", "6379", "TCP port the server listens on")
+	queueSize := flag.Int("queueSize", 100, "Maximum number of commands buffered in the command queue")
 
 	flag.Parse()
 
