@@ -28,12 +28,18 @@ func NewCLIProcessor(q *queue.GopherQueue) *CLIProcessor {
 func (cp *CLIProcessor) Run() error {
 	reader := bufio.NewReader(os.Stdin)
 
+	log.Println("==> Gopher Cache is ready")
+	log.Println("==> Enter RESP commands below (Ctrl+C to exit)")
+
 	for {
+		fmt.Print("🐹> ")
 		userInput, err := reader.ReadBytes(byte('\n'))
 
 		if err != nil {
 			log.Fatal("Failed to read user input")
 			return err
+		} else if len(userInput) <= 2 {
+			continue
 		}
 
 		responseCh := make(chan string, 1)

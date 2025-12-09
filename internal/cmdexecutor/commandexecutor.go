@@ -1,8 +1,6 @@
 package cmdexecutor
 
 import (
-	"log"
-
 	"github.com/MaksMakarskyi/gopher-cache/internal/cmds"
 	"github.com/MaksMakarskyi/gopher-cache/internal/db"
 	"github.com/MaksMakarskyi/gopher-cache/internal/queue"
@@ -23,8 +21,6 @@ func NewGopherCommandExecutor(q *queue.GopherQueue, d *db.GopherDB) *GopherComma
 }
 
 func (gce *GopherCommandExecutor) Start() {
-	log.Print("started command executor")
-
 	for cmd := range gce.Queue.WaitForCommands() {
 		result, err := gce.Execute(cmd)
 		if err != nil {

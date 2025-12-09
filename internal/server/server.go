@@ -33,10 +33,12 @@ func (gs *GopherServer) Run() error {
 		return fmt.Errorf("ERR failed to run TCP server")
 	}
 
-	log.Printf("started listening %s", gs.Addr)
-
 	gs.Listener = ln
 	defer ln.Close()
+
+	log.Println("==> Gopher Cache is ready")
+	log.Printf("==> Listening on %s", gs.Addr)
+	log.Println("==> Server ready and accepting RESP commands (Ctrl+C to exit)")
 
 	for {
 		conn, err := ln.Accept()

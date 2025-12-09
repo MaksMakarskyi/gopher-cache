@@ -8,7 +8,7 @@ import (
 )
 
 func main() {
-	log.SetFlags(log.LstdFlags | log.Lshortfile)
+	log.SetFlags(log.LstdFlags)
 
 	mode := flag.String("mode", "server", "Run mode: 'server' listens for TCP connections, 'cli' reads commands from stdin")
 	host := flag.String("host", "localhost", "Address to bind the TCP server to")
