@@ -133,7 +133,9 @@ The following sequence diagram illustrates how a single client command is receiv
 
 # Performance
 
-The following benchmarks provide a baseline for single-node, in-memory performance.
+The following benchmarks provide a baseline performance.
+
+> 📝 **Note:** You can check out benchmark tests in `./benchmark` folder. See [Benchmarks](./benchmark/)
 
 **Environment:**
 
