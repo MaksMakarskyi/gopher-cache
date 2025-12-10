@@ -21,7 +21,7 @@
 
 # About
 
-Gopher Cache is a small in-memory database. It was built with the intention to mock a Redis database, so that it behaves in a similar way as the real one from the user/client perspective. The source code of the project is fully written in Go. The initial goal of this project was to build a mini copy of the Redis database in order to increase understanding of both the Redis internals and the Go programming language. However, everybody is welcome to check the code, propose improvements, create their own forks/versions, and use the source code for their own purposes.
+Gopher Cache is a small in-memory database. It was built with the intention to mock a Redis database, so that it behaves similarly to the real one from the user/client perspective. The source code of the project is fully written in Go. The initial goal of this project was to build a mini copy of the Redis database to increase understanding of both the Redis internals and the Go programming language. However, everybody is welcome to check the code, propose improvements, create their own forks/versions, and use the source code for their own purposes.
 
 > 📝 **Note:** This project is not intended to be a drop-in replacement for Redis.
 
@@ -119,11 +119,11 @@ It synchronously processes commands from the Command Queue, dispatches them to t
 
 #### KV Store
 
-The Storage Engine maintains an in-memory mapping of keys to typed values such as strings, lists, sets, and hashes. Each command handler function validates the expected type and either applies the requested mutation or returns a protocol-compatible error.
+The Storage Engine maintains an in-memory mapping of keys to typed values such as strings, lists, sets, and hashmaps. Each command handler function validates the expected type and either applies the requested mutation or returns a protocol-compatible error.
 
 ## Execution Flow
 
-The following sequence diagram illustrates how a single client command is received, parsed, queued, executed, and responded to.
+The following sequence diagram illustrates the process of receiving, parsing, queuing, executing, and responding to a single client command.
 
 <p align="center">
   <img src="./assests/execution_flow_sequence_diagram.png"/>
