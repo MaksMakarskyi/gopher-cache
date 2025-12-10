@@ -34,6 +34,7 @@ Gopher Cache is a small in-memory database. It was built with the intention to m
 - **Redis commands support:**
   | Command | Redis Docs | Supported | Notes |
   | ------------- |:-------------| :-----:| ---- |
+  | PING | [https://redis.io/docs/latest/commands/ping](https://redis.io/docs/latest/commands/ping/) | ✅ | |
   | SET | [https://redis.io/docs/latest/commands/set](https://redis.io/docs/latest/commands/set/) | ⚠️ | (supported without options) |
   | GET | [https://redis.io/docs/latest/commands/get](https://redis.io/docs/latest/commands/get/) | ✅ | |
   | HSET | [https://redis.io/docs/latest/commands/hset](https://redis.io/docs/latest/commands/hset/) | ✅ | |
@@ -131,6 +132,29 @@ The following sequence diagram illustrates how a single client command is receiv
 </p>
 
 # Performance
+
+The following benchmarks provide a baseline for single-node, in-memory performance.
+
+**Environment:**
+
+- Go: 1.25
+- OS: Windows (amd64)
+- CPU: 11th Gen Intel(R) Core(TM) i5-11400H @ 2.70GHz
+
+#### Throughput
+
+Throughput benchmarks were executed over a localhost TCP connection using Go’s benchmarking framework. Throughput values are derived from average end-to-end latency measurements (5 runs).
+
+| Command | Throughput (ops/sec) |
+| ------- | :------------------: |
+| SET     |        30,156        |
+| GET     |        30,015        |
+| HSET    |        29,775        |
+| HGET    |        29,297        |
+| LPUSH   |        29,936        |
+| LLEN    |        30,316        |
+| SADD    |        30,366        |
+| SCARD   |        30,289        |
 
 # Examples
 
